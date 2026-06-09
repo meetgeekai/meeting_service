@@ -1,4 +1,4 @@
-# user_service
+# meeting_service
 
 This repository provides a production-ready Go microservice template built with [Gin](https://github.com/gin-gonic/gin).  
 It is designed with maintainability, observability, and Kubernetes integration in mind.
