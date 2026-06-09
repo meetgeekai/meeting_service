@@ -1,0 +1,5 @@
+{"L":"ERROR","timestamp":"2026-06-09T14:01:04.737+0300","M":"Service :: Server restarted"}
+{"L":"INFO","timestamp":"2026-06-09T14:01:04.737+0300","M":"Health server starting on 0.0.0.0:9090"}
+{"L":"INFO","timestamp":"2026-06-09T14:02:04.166+0300","M":"Microservice received SIGTERM signal. It's now scheduled to shutdown in 30 seconds..."}
+{"L":"INFO","timestamp":"2026-06-09T14:02:06.167+0300","M":"Health server shutting down..."}
+{"L":"INFO","timestamp":"2026-06-09T14:02:06.168+0300","M":"Server exited gracefully"}
