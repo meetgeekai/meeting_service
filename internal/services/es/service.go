@@ -145,3 +145,90 @@ func (s *ESService) GetUpcomingMeetingsPage(
 
 	return result, nil
 }
+
+type UpcomingMeeting struct {
+	IDES                 string   `json:"es_id"`
+	OwnerUUID            string   `json:"owner_uuid"`
+	ExternalRecurringIDs []string `json:"external_recurring_ids"`
+}
+
+// GetUpcomingMeetingByID returns the matching upcoming meeting, or nil if no
+// upcoming meeting matches the given meeting_id.
+func (s *ESService) GetUpcomingMeetingByID(ctx context.Context, meetingID string) (*UpcomingMeeting, error) {
+	raw, err := s.callWithResponse(
+		ctx,
+		s.config.ESGetUpcomingMeetingByID,
+		map[string]any{"meeting_id": meetingID},
+		zap.String("meetingID", meetingID),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var meeting *UpcomingMeeting
+	if err := json.Unmarshal(raw, &meeting); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal ES response: %w", err)
+	}
+
+	return meeting, nil
+}
+
+func (s *ESService) UpdateMeetingPartially(
+	ctx context.Context,
+	esID string,
+	fields map[string]any,
+) (bool, error) {
+	raw, err := s.callWithResponse(
+		ctx,
+		s.config.ESUpdateMeetingPartially,
+		map[string]any{
+			"es_id":                   esID,
+			"updated_partial_meeting": fields,
+		},
+		zap.String("esID", esID),
+	)
+	if err != nil {
+		return false, err
+	}
+
+	var updated bool
+	if err := json.Unmarshal(raw, &updated); err != nil {
+		return false, fmt.Errorf("failed to unmarshal ES response: %w", err)
+	}
+
+	return updated, nil
+}
+
+func (s *ESService) UpdateRecurrentMeetingsPartially(
+	ctx context.Context,
+	ownerUUID string,
+	externalRecurringIDs []string,
+	excludeESID string,
+	fields map[string]any,
+) (bool, error) {
+	body := map[string]any{
+		"owner_uuid":              ownerUUID,
+		"external_recurring_ids":  externalRecurringIDs,
+		"updated_partial_meeting": fields,
+	}
+	if excludeESID != "" {
+		body["exclude_es_id"] = excludeESID
+	}
+
+	raw, err := s.callWithResponse(
+		ctx,
+		s.config.ESUpdateRecurrentMeetingsPartially,
+		body,
+		zap.String("ownerUUID", ownerUUID),
+	)
+	if err != nil {
+		return false, err
+	}
+
+	var updated bool
+	if err := json.Unmarshal(raw, &updated); err != nil {
+		return false, fmt.Errorf("failed to unmarshal ES response: %w", err)
+	}
+
+	return updated, nil
+}

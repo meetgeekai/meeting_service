@@ -45,3 +45,27 @@ func (h *MeetingsHandler) GetUpcomingMeetings(c *gin.Context) {
 
 	c.JSON(resp.GetHttpCode(), resp.Data)
 }
+
+func (h *MeetingsHandler) UpdateAutoJoin(c *gin.Context) {
+	type Request struct {
+		MeetingID     string `json:"meeting_id" binding:"required"`
+		AutomaticJoin *bool  `json:"automatic_join" binding:"required"`
+	}
+
+	var req Request
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response.AppError{
+			Status: response.INVALID_INPUT_ERR,
+			Reason: err.Error(),
+		})
+		return
+	}
+
+	resp := h.svc.UpdateAutoJoin(c, req.MeetingID, *req.AutomaticJoin)
+	if resp.IsError() {
+		c.JSON(resp.GetHttpCode(), resp.Err)
+		return
+	}
+
+	c.JSON(resp.GetHttpCode(), resp.Data)
+}

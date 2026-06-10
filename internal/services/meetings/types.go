@@ -76,3 +76,8 @@ type UpcomingMeetingsPage struct {
 	Meetings   []UpcomingMeeting `json:"meetings"`
 	NextCursor *string           `json:"next_cursor"`
 }
+
+type UpdateAutoJoinResult struct {
+	MeetingID     string `json:"meeting_id"`
+	AutomaticJoin bool   `json:"automatic_join"`
+}

@@ -46,9 +46,12 @@ func main() {
 
 	repo := mysqlRepo.NewMySQLRepository()
 	esService := elasticsearch.NewESService(&elasticsearch.ESServiceConfig{
-		ESBase:                    gocommon.GetEnv[string]("ES_SERVICE_ENDPOINT"),
-		ESGetUpcomingMeetingsPage: gocommon.GetEnv[string]("ES_SERVICE_GET_UPCOMING_MEETINGS_PAGE"),
-		APISecret:                 secret,
+		ESBase:                             gocommon.GetEnv[string]("ES_SERVICE_ENDPOINT"),
+		ESGetUpcomingMeetingsPage:          gocommon.GetEnv[string]("ES_SERVICE_GET_UPCOMING_MEETINGS_PAGE"),
+		ESGetUpcomingMeetingByID:           gocommon.GetEnv[string]("ES_SERVICE_GET_UPCOMING_MEETING_BY_ID"),
+		ESUpdateMeetingPartially:           gocommon.GetEnv[string]("ES_SERVICE_UPDATE_MEETING_PARTIALLY"),
+		ESUpdateRecurrentMeetingsPartially: gocommon.GetEnv[string]("ES_SERVICE_UPDATE_RECURRENT_MEETINGS_PARTIALLY"),
+		APISecret:                          secret,
 	}, logger)
 	meetingsService := meetings.NewMeetingsService(repo, esService, logger)
 

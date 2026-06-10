@@ -11,4 +11,5 @@ func RegisterRoutes(logger *zap.Logger, router *gin.RouterGroup, meetingsSvc *me
 	meetingsHandler := handlers.NewMeetingsHandler(meetingsSvc, logger)
 
 	router.GET("/upcoming-meetings", meetingsHandler.GetUpcomingMeetings)
+	router.PATCH("/update-auto-join", meetingsHandler.UpdateAutoJoin)
 }

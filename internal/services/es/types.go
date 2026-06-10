@@ -7,9 +7,12 @@ import (
 )
 
 type ESServiceConfig struct {
-	ESBase                    string
-	ESGetUpcomingMeetingsPage string
-	APISecret                 string
+	ESBase                             string
+	ESGetUpcomingMeetingsPage          string
+	ESGetUpcomingMeetingByID           string
+	ESUpdateMeetingPartially           string
+	ESUpdateRecurrentMeetingsPartially string
+	APISecret                          string
 }
 
 type ESService struct {
