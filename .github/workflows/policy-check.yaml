@@ -1,0 +1,57 @@
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  validate-names:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check Branch Name"
+        run: |
+          # 1. Get the branch name
+          BRANCH_NAME="${{ github.head_ref }}"
+          
+          # 2. Check for exclusions (main, master, dev)
+          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "master" || "$BRANCH_NAME" == "dev" ]]; then
+            echo "Skipping validation for protected branch: $BRANCH_NAME"
+            exit 0
+          fi
+
+          # 3. Enable case-insensitive matching
+          shopt -s nocasematch
+
+          # 4. Define Regex for: type/meet-<id>/<branch_name>
+          BRANCH_REGEX="^(task|bugfix|hotfix|feature)/MEET-[0-9]+/.+"
+
+          echo "Checking branch name: $BRANCH_NAME"
+          
+          if [[ ! $BRANCH_NAME =~ $BRANCH_REGEX ]]; then
+            echo "::error::Invalid Branch Name: '$BRANCH_NAME'"
+            echo "::error::Format required: type/meet-<id>/<description>"
+            echo "::error::Allowed types: task, bugfix, hotfix, feature"
+            echo "::error::Example: feature/meet-1234/add-new-button"
+            exit 1
+          fi
+          
+          echo "Branch name format is valid."
+
+      - name: "Check PR Title"
+        run: |
+          # 1. Enable case-insensitive matching
+          shopt -s nocasematch
+
+          # 2. Define Regex for: [MEET-<id>]: <title>
+          TITLE_REGEX="^\[MEET-[0-9]+\]: .+"
+          
+          PR_TITLE="${{ github.event.pull_request.title }}"
+
+          echo "Checking PR Title: $PR_TITLE"
+          
+          if [[ ! $PR_TITLE =~ $TITLE_REGEX ]]; then
+            echo "::error::Invalid PR Title: '$PR_TITLE'"
+            echo "::error::Format required: [MEET-<id>]: <title>"
+            echo "::error::Example: [MEET-1234]: Fix login bug"
+            exit 1
+          fi
+          
+          echo "PR Title format is valid."

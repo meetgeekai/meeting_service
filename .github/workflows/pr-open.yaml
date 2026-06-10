@@ -1,0 +1,29 @@
+name: Trigger Jenkins Job on PR to main
+
+on:
+  pull_request:
+    types: [opened]
+    branches:
+      - main
+
+jobs:
+  trigger-jenkins-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up environment variables
+      id: vars
+      run: |
+        echo "BRANCH_NAME=$(echo ${{ github.head_ref }} | jq -sRr @uri | sed 's/%0A//g')" >> $GITHUB_ENV
+        echo "CRUMB=$(curl -s -u "$JENKINS_USER:$JENKINS_TOKEN" $urlOfJenkinsServer'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)')" >> $GITHUB_ENV
+
+    - name: Trigger Jenkins Job
+      run: |
+        curl -H "$CRUMB" -X POST "$JENKINS_URL/job/meetgeek/job/$REPOSITORY_NAME/job/PR-$PR_NUMBER/build" \
+        --user "$JENKINS_USER:$JENKINS_TOKEN" \
+      env:
+        JENKINS_URL: ${{ vars.JENKINS_URL }}
+        JENKINS_USER: ${{ secrets.JENKINS_USER }}
+        JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+        REPOSITORY_NAME: ${{ github.event.repository.name }}
+        PR_NUMBER: ${{ github.event.number }}
