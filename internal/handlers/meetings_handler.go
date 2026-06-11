@@ -47,13 +47,20 @@ func (h *MeetingsHandler) GetUpcomingMeetings(c *gin.Context) {
 }
 
 func (h *MeetingsHandler) UpdateAutoJoin(c *gin.Context) {
-	type Request struct {
-		MeetingID     string `json:"meeting_id" binding:"required"`
-		AutomaticJoin *bool  `json:"automatic_join" binding:"required"`
+	meetingID := c.Param("meeting_id")
+	if meetingID == "" {
+		c.JSON(http.StatusBadRequest, response.AppError{
+			Status: response.INVALID_INPUT_ERR,
+			Reason: "meeting_id is required",
+		})
+		return
 	}
 
-	var req Request
-	if err := c.ShouldBindJSON(&req); err != nil {
+	type Query struct {
+		UserID uint32 `form:"user_id" binding:"required"`
+	}
+	var query Query
+	if err := c.ShouldBindQuery(&query); err != nil {
 		c.JSON(http.StatusBadRequest, response.AppError{
 			Status: response.INVALID_INPUT_ERR,
 			Reason: err.Error(),
@@ -61,7 +68,19 @@ func (h *MeetingsHandler) UpdateAutoJoin(c *gin.Context) {
 		return
 	}
 
-	resp := h.svc.UpdateAutoJoin(c, req.MeetingID, *req.AutomaticJoin)
+	type Body struct {
+		AutomaticJoin *bool `json:"automatic_join" binding:"required"`
+	}
+	var body Body
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, response.AppError{
+			Status: response.INVALID_INPUT_ERR,
+			Reason: err.Error(),
+		})
+		return
+	}
+
+	resp := h.svc.UpdateAutoJoin(c, query.UserID, meetingID, *body.AutomaticJoin)
 	if resp.IsError() {
 		c.JSON(resp.GetHttpCode(), resp.Err)
 		return
