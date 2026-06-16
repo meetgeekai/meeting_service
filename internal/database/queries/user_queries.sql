@@ -1,11 +1,11 @@
 -- name: GetUserForUpcomingMeetings :one
 SELECT
-    u.uuid,
+    u.id,
     u.name,
     u.email
 FROM
     users u
 WHERE
-    u.id = ?
+    u.uuid = ?
     AND u.deleted_at IS NULL
 ;

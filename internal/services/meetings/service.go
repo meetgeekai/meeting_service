@@ -40,16 +40,16 @@ type esMeeting struct {
 
 func (s *MeetingsService) GetUpcomingMeetings(
 	ctx context.Context,
-	userID uint32,
+	userUUID string,
 	rawCursor string,
 ) response.Response[UpcomingMeetingsPage] {
-	owner, err := s.repo.GetUserForUpcomingMeetings(ctx, userID)
+	owner, err := s.repo.GetUserForUpcomingMeetings(ctx, userUUID)
 	if err != nil {
-		s.logger.Error("Failed to fetch user", zap.Uint32("userID", userID), zap.Error(err))
+		s.logger.Error("Failed to fetch user", zap.String("userUUID", userUUID), zap.Error(err))
 		return response.Error[UpcomingMeetingsPage](response.DB_ERR, "Failed to fetch user")
 	}
 	if owner == nil {
-		return response.Error[UpcomingMeetingsPage](response.NOT_FOUND_ERR, "User %d not found", userID)
+		return response.Error[UpcomingMeetingsPage](response.NOT_FOUND_ERR, "User %s not found", userUUID)
 	}
 
 	var cursor *elasticsearch.UpcomingMeetingsCursor
@@ -108,7 +108,7 @@ func (s *MeetingsService) GetUpcomingMeetings(
 		for id := range templateIDSet {
 			templateIDs = append(templateIDs, id)
 		}
-		templateNames, err = s.repo.GetConversationTemplateNames(ctx, templateIDs, userID)
+		templateNames, err = s.repo.GetConversationTemplateNames(ctx, templateIDs, owner.ID)
 		if err != nil {
 			s.logger.Error("Failed to fetch conversation template names", zap.Error(err))
 			return response.Error[UpcomingMeetingsPage](response.DB_ERR, "Failed to fetch conversation template names")

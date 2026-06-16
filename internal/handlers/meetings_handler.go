@@ -24,8 +24,8 @@ func NewMeetingsHandler(svc *meetings.MeetingsService, logger *zap.Logger) *Meet
 
 func (h *MeetingsHandler) GetUpcomingMeetings(c *gin.Context) {
 	type Request struct {
-		UserID uint32 `form:"user_id" binding:"required"`
-		Cursor string `form:"cursor"`
+		UserUUID string `form:"user_uuid" binding:"required"`
+		Cursor   string `form:"cursor"`
 	}
 
 	var req Request
@@ -37,7 +37,7 @@ func (h *MeetingsHandler) GetUpcomingMeetings(c *gin.Context) {
 		return
 	}
 
-	resp := h.svc.GetUpcomingMeetings(c, req.UserID, req.Cursor)
+	resp := h.svc.GetUpcomingMeetings(c, req.UserUUID, req.Cursor)
 	if resp.IsError() {
 		c.JSON(resp.GetHttpCode(), resp.Err)
 		return
@@ -57,7 +57,7 @@ func (h *MeetingsHandler) UpdateAutoJoin(c *gin.Context) {
 	}
 
 	type Query struct {
-		UserID uint32 `form:"user_id" binding:"required"`
+		UserUUID string `form:"user_uuid" binding:"required"`
 	}
 	var query Query
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -80,7 +80,7 @@ func (h *MeetingsHandler) UpdateAutoJoin(c *gin.Context) {
 		return
 	}
 
-	resp := h.svc.UpdateAutoJoin(c, query.UserID, meetingID, *body.AutomaticJoin)
+	resp := h.svc.UpdateAutoJoin(c, query.UserUUID, meetingID, *body.AutomaticJoin)
 	if resp.IsError() {
 		c.JSON(resp.GetHttpCode(), resp.Err)
 		return

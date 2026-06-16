@@ -11,25 +11,25 @@ import (
 
 const getUserForUpcomingMeetings = `-- name: GetUserForUpcomingMeetings :one
 SELECT
-    u.uuid,
+    u.id,
     u.name,
     u.email
 FROM
     users u
 WHERE
-    u.id = ?
+    u.uuid = ?
     AND u.deleted_at IS NULL
 `
 
 type GetUserForUpcomingMeetingsRow struct {
-	Uuid  string `json:"uuid"`
+	ID    uint32 `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
 
-func (q *Queries) GetUserForUpcomingMeetings(ctx context.Context, id uint32) (GetUserForUpcomingMeetingsRow, error) {
-	row := q.db.QueryRowContext(ctx, getUserForUpcomingMeetings, id)
+func (q *Queries) GetUserForUpcomingMeetings(ctx context.Context, uuid string) (GetUserForUpcomingMeetingsRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserForUpcomingMeetings, uuid)
 	var i GetUserForUpcomingMeetingsRow
-	err := row.Scan(&i.Uuid, &i.Name, &i.Email)
+	err := row.Scan(&i.ID, &i.Name, &i.Email)
 	return i, err
 }

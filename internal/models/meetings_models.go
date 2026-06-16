@@ -5,6 +5,7 @@ import (
 )
 
 type UpcomingMeetingsOwner struct {
+	ID    uint32
 	UUID  string
 	Name  string
 	Email string

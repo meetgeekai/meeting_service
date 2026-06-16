@@ -52,10 +52,10 @@ func NewMySQLRepository() *MySQLRepository {
 	}
 }
 
-func (r *MySQLRepository) GetUserForUpcomingMeetings(ctx context.Context, userID uint32) (*models.UpcomingMeetingsOwner, error) {
+func (r *MySQLRepository) GetUserForUpcomingMeetings(ctx context.Context, userUUID string) (*models.UpcomingMeetingsOwner, error) {
 	queries := dbmodels.New(r.dbFast)
 
-	row, err := queries.GetUserForUpcomingMeetings(ctx, userID)
+	row, err := queries.GetUserForUpcomingMeetings(ctx, userUUID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -64,7 +64,8 @@ func (r *MySQLRepository) GetUserForUpcomingMeetings(ctx context.Context, userID
 	}
 
 	return &models.UpcomingMeetingsOwner{
-		UUID:  row.Uuid,
+		ID:    row.ID,
+		UUID:  userUUID,
 		Name:  row.Name,
 		Email: row.Email,
 	}, nil
